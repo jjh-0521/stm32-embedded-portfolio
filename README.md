@@ -1,58 +1,72 @@
-# STM32 Embedded Portfolio (NUCLEO-F401RE)
+# stm32_led_test
 
-STM32 NUCLEO-F401RE 기반 펌웨어 포트폴리오 프로젝트입니다.  
-CubeMX로 프로젝트 뼈대를 생성하고, 기능을 **단계적으로 추가**하면서 Git 커밋으로 작업 과정을 기록합니다.
+##  프로젝트 개요
+STM32F401RE(Nucleo) 보드를 사용하여  
+GPIO 입력/출력과 EXTI 인터럽트 기반 버튼 제어를 학습하는 기초 실습 프로젝트이다.
+
+본 프로젝트에서는 polling 방식이 아닌  
+**외부 인터럽트(EXTI)를 이용한 이벤트 기반 구조**를 구현하였다.
 
 ---
 
-## 1. Target & Environment
-- Board: NUCLEO-F401RE
-- MCU: STM32F401RE
+##  개발 환경
+- Board: STM32 Nucleo-F401RE
+- MCU: STM32F401RE (Cortex-M4)
 - IDE: STM32CubeIDE
-- Language: C (HAL 기반, 이후 Register 버전도 추가 예정)
+- HAL Driver 사용
+- OS: Windows
 
 ---
 
-## 2. Project Goals
-- GPIO / UART / Timer 기초 주변장치 구현
-- Interrupt 기반 설계(EXTI, Timer ISR) 및 디바운싱
-- HAL 구현과 Register 직접 제어 구현 비교
-- 디버깅 이슈 및 해결 과정을 문서화(README + 커밋 로그)
+##  구현 내용
+
+### 1. GPIO Output (LED)
+- PA5 핀에 연결된 LED 제어
+- Push-Pull 출력 방식 사용
+
+### 2. GPIO Input (Button)
+- PC13 핀 (User Button)
+- Internal Pull-up 사용
+- Falling Edge 트리거
+
+### 3. EXTI 인터럽트
+- 버튼 입력을 External Interrupt 방식으로 처리
+- NVIC에서 EXTI line[15:10] 활성화
+- `HAL_GPIO_EXTI_Callback()`에서 이벤트 처리
+
+### 4. 소프트웨어 디바운싱
+- `HAL_GetTick()` 기반 디바운싱 적용
+- Delay 기반 디바운싱의 단점을 회피
 
 ---
 
-## 3. Current Status
-- [x] Project initialized with CubeMX (.ioc committed)
-- [ ] GPIO LED control
-- [ ] UART debug logging
-- [ ] Timer periodic task
-- [ ] EXTI button interrupt + debounce
-- [ ] HAL vs Register comparison
+##  동작 방식
+1. 버튼(PC13)을 누르면 Falling Edge 발생
+2. EXTI 인터럽트 트리거
+3. `HAL_GPIO_EXTI_Callback()` 호출
+4. 디바운싱 조건 통과 시 LED 토글
 
 ---
 
-## 4. Repository Structure (planned)
-- `Core/` : application code (main, interrupt handlers, user code)
-- `Drivers/` : CMSIS + HAL drivers
-- `Docs/` (to be added) : diagrams, debugging notes, screenshots
+##  학습 포인트
+- Polling 방식과 Interrupt 방식의 차이 이해
+- 이벤트 기반 펌웨어 구조 경험
+- EXTI 및 NVIC 설정 흐름 이해
+- 하드웨어 입력의 디바운싱 필요성
 
 ---
 
-## 5. Build & Run
-1) Open the project in STM32CubeIDE  
-2) Build (Debug configuration)  
-3) Flash via ST-LINK (Nucleo onboard)
 
 ---
 
-## 6. Notes / Troubleshooting
-(추후 디버깅 이슈와 해결 과정을 여기에 누적)
-- Example:
-  - Issue: ...
-  - Root cause: ...
-  - Fix: ...
+##  참고
+- 인터럽트 기반 구조에서는 `while(1)` 루프가 비어 있을 수 있음
+- EXTI 콜백 함수에서 GPIO 핀을 구분하여 처리하는 것이 중요함
 
 ---
 
-## 7. License
-Personal portfolio project.
+##  Next Step
+- Timer 인터럽트 기반 주기 제어
+- Delay 없는 LED 제어
+- 상태 머신(FSM) 구조 적용
+
