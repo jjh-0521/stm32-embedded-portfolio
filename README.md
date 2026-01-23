@@ -1,59 +1,65 @@
-# STM32 Embedded Portfolio (NUCLEO-F401RE)
+# stm32_timer_led
 
-STM32 NUCLEO-F401RE 기반 펌웨어 포트폴리오 프로젝트입니다.  
-CubeMX로 프로젝트 뼈대를 생성하고, 기능을 **단계적으로 추가**하면서 Git 커밋으로 작업 과정을 기록합니다.
+## 프로젝트 개요
+STM32F401RE(Nucleo) 보드를 사용하여  
+**하드웨어 타이머(TIM)를 이용한 주기적 LED 제어**를 학습하는 기초 실습 프로젝트이다.
+
+본 프로젝트에서는 `HAL_Delay()`와 같은 소프트웨어 지연 방식이 아닌  
+**Timer Peripheral 기반의 정확한 주기 제어 구조**를 구현하였다.
 
 ---
 
-## 1. Target & Environment
-- Board: NUCLEO-F401RE
-- MCU: STM32F401RE
+## 개발 환경
+- Board: STM32 Nucleo-F401RE
+- MCU: STM32F401RE (Cortex-M4)
 - IDE: STM32CubeIDE
-- Language: C (HAL 기반, 이후 Register 버전도 추가 예정)
+- Language: C
+- HAL Driver 사용
+- OS: Windows
 
 ---
 
-## 2. Project Goals
-- GPIO / UART / Timer 기초 주변장치 구현
-- Interrupt 기반 설계(EXTI, Timer ISR) 및 디바운싱
-- HAL 구현과 Register 직접 제어 구현 비교
-- 디버깅 이슈 및 해결 과정을 문서화(README + 커밋 로그)
+## 구현 내용
+
+### 1. Timer Base (TIM2)
+- TIM2를 Base Timer 모드로 설정
+- Prescaler와 Auto-Reload 값을 이용해 1초 주기 생성
+- 내부 클럭(APB1 Timer Clock) 사용
+
+### 2. GPIO Output (LED)
+- PA5 핀에 연결된 LED 제어
+- Push-Pull 출력 방식 사용
+
+### 3. Timer 기반 LED 제어
+- Timer 주기마다 LED 토글
+- 소프트웨어 Delay 없이 일정한 주기 유지
 
 ---
 
-## 3. Current Status
-- [x] Project initialized with CubeMX (.ioc committed)
-- [x] GPIO LED control
-- [x] EXTI button interrupt + debounce
-- [ ] UART debug logging
-- [ ] Timer periodic task
-- [ ] HAL vs Register comparison
-
+## 동작 방식
+1. 시스템 초기화 (`HAL_Init`, `SystemClock_Config`)
+2. GPIO 및 TIM2 초기화
+3. TIM2 Base Timer 시작
+4. Timer 주기 도달 시 LED 상태 변경
+5. 동일한 주기로 반복 동작
 
 ---
 
-## 4. Repository Structure (planned)
-- `Core/` : application code (main, interrupt handlers, user code)
-- `Drivers/` : CMSIS + HAL drivers
-- `Docs/` (to be added) : diagrams, debugging notes, screenshots
+## 학습 포인트
+- Timer Peripheral의 역할과 필요성 이해
+- Delay 기반 제어의 한계 인식
+- Prescaler / Auto-Reload 값 계산 흐름 이해
+- 주기적 태스크 구현의 기본 구조 습득
+- 이후 Timer Interrupt(ISR) 확장의 기초 마련
 
 ---
 
-## 5. Build & Run
-1) Open the project in STM32CubeIDE  
-2) Build (Debug configuration)  
-3) Flash via ST-LINK (Nucleo onboard)
-
----
-
-## 6. Notes / Troubleshooting
-(추후 디버깅 이슈와 해결 과정을 여기에 누적)
-- Example:
-  - Issue: ...
-  - Root cause: ...
-  - Fix: ...
-
----
-
-## 7. License
-Personal portfolio project.
+## 파일 구조
+stm32_timer_led/
+├─ Core/
+│ ├─ Inc/
+│ └─ Src/
+├─ Drivers/
+├─ stm32_timer_led.ioc
+├─ README.md
+└─ .gitignore
